@@ -1,34 +1,88 @@
 # phpIPAM Inventory
+---
+Thanks to [Poorya Sheikh](https://github.com/pooryasheikh/phpipam-inventory) for his inventory script.
 
-phpIPAM Inventory is an inventory script for Ansible.
+Differences from the original:
+- Subgroups can theoretically be nested infinitely
+- A parent group can be a subgroup of a group
+- Added field for cnames to create CNAME in DNS zone files
+- Added field for service to create ALIAS in DNS zone files
+- Added field for criticality
+- Hosts can now be addressed by their group, parent group, criticality and location
+- Added online status check to disable host in inventory
+- Host is disabled when tagged on maintenance
+- IP address is added to the host vars
+- Minor code changes I can't remember
+---
+
+phpIPAM Inventory is an inventory script for Ansible and AWX.
 
 ## Configuration
 
-**STEP 1)** Create dotenv file as below:
+**STEP 1)** Create a new creredential type in AWX:
 
-```text
-#inventory/.env
-IPAM_ADDR=http://ipam.example.come/api/
-IPAM_API_USER=inventory
-IPAM_USER=admin
-IPAM_PASS=password
+![AWX credential type](images/awx_credential_type.png)
+
+**Input configuration:**
+
+```yaml
+fields:
+  - id: IPAM_ADDR
+    type: string
+    label: IPAM Api Address
+  - id: IPAM_API_USER
+    type: string
+    label: IPAM Api User
+  - id: IPAM_USER
+    type: string
+    label: IPAM User
+  - id: IPAM_PASS
+    type: string
+    label: IPAM Passwort
+    secret: true
+
 ```
 
-**STEP 2)** Create 2 Custom feilds in phpIPAM for IP Addresses:
+**Injector configuration**:
 
-![Custom feilds](images/custom-feilds.png)
+```yaml
+env:
+  IPAM_ADDR: '{{ IPAM_ADDR }}'
+  IPAM_PASS: '{{ IPAM_PASS }}'
+  IPAM_USER: '{{ IPAM_USER }}'
+  IPAM_API_USER: '{{ IPAM_API_USER }}'
 
-**STEP 3)** Create locations in phpIPAM:
+```
+
+**STEP 2)** Create a new creredential:
+
+![AWX Credential](images/awx_credential.png)
+
+**STEP 3)** Set enable varibale in AWX inventory source options:
+
+![enable variable](images/awx_source_options.png)
+
+**STEP 4)** Create Custom fields in phpIPAM for IP Addresses:
+
+![Custom feilds](images/custom-fields.png)
+
+**STEP 5)** Create locations in phpIPAM:
 
 ![Custom feilds](images/locations.png)
 
-*Locations can be Datacenter name or environments for example stage, prod.*
+**STEP 6)** Create maintenance tag in phpIPAM:
 
-**STEP 4)** In IP address, fill a name for custom field group and if you want this group has a parent group also fill a name in parent custom field:
+![maintenance tag](images/tags.png)
 
-![Custom feilds](images/ip-address.png)
+**STEP 7)** In IP address, fill a name for custom field group and if you want this group has a parent group also fill a name in parent custom field. Add cname, service,tag and criticality as you see fit:
+
+![Custom fields](images/ip-address.png)
 
 *IP Addresses without location field will not present in inventory output!*
+
+### Example inventory
+
+![Example inventory](images/phpipam_example_inventory.png)
 
 ## Group vars and host vars
 All vars should be static in the directory of the dynamic inventory:
@@ -77,83 +131,220 @@ ansible-inventory inventory/phpipam_inventory.py --list
 {
     "_meta": {
         "hostvars": {
-            "db.stage.local": {
-                "_meta": {
-                    "hostvars": {}
-                },
-                "service_ntp": true
+            "bitwarden.de.example.com": {
+                "ansible_host": "172.19.0.7",
+                "cname": "bitwarden",
+                "service": "bw",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
             },
-            "mysql.prod.local": {
-                "_meta": {
-                    "hostvars": {}
-                },
-                "service_ntp": true
+            "k8s_master01.de.example.com": {
+                "ansible_host": "172.19.0.2",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
             },
-            "pg.prod.local": {
-                "_meta": {
-                    "hostvars": {}
-                },
-                "service_ntp": true
+            "k8s_node01.de.example.com": {
+                "ansible_host": "172.19.0.3",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
+            },
+            "pfsense.de.example.com": {
+                "ansible_host": "172.19.0.1",
+                "cname": "fw;gw",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
+            },
+            "php-ipam.de.example.com": {
+                "ansible_host": "172.19.0.6",
+                "service": "ipam",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
+            },
+            "proxmox.de.example.com": {
+                "ansible_host": "172.19.0.5",
+                "service_ntp": true,
+                "status": {
+                    "enabled": true
+                }
+            },
+            "rancher.de.example.com": {
+                "ansible_host": "172.19.0.4",
+                "service": "rancher",
+                "service_ntp": true,
+                "status": {
+                    "enabled": false
+                }
             }
         }
     },
     "all": {
         "children": [
-            "databases",
-            "mysql",
-            "posgresql",
-            "prod",
-            "stage",
-            "ungrouped"
+            "ungrouped",
+            "uk",
+            "gra",
+            "sbg",
+            "bhs",
+            "waw",
+            "syd",
+            "sgp",
+            "de",
+            "critical",
+            "k8s_master",
+            "k8s",
+            "k8s_node",
+            "productive",
+            "proxmox",
+            "tools",
+            "firewall"
         ]
     },
-    "databases": {
+    "critical": {
         "children": [
-            "databases-prod"
+            "firewall_critical"
         ]
     },
-    "databases-prod": {
+    "de": {
         "children": [
-            "mysql-prod",
-            "posgresql-prod"
+            "k8s_master_de",
+            "k8s_de",
+            "k8s_node_de",
+            "proxmox_de",
+            "tools_de",
+            "firewall_de"
         ]
     },
-    "mysql": {
+    "firewall": {
         "children": [
-            "mysql-prod",
-            "mysql-stage"
+            "firewall_de",
+            "firewall_critical"
         ]
     },
-    "mysql-prod": {
+    "firewall_critical": {
         "hosts": [
-            "mysql.prod.local"
+            "pfsense.de.example.com"
         ]
     },
-    "mysql-stage": {
+    "firewall_de": {
         "hosts": [
-            "db.stage.local"
+            "pfsense.de.example.com"
         ]
     },
-    "posgresql": {
+    "k8s": {
         "children": [
-            "posgresql-prod"
+            "k8s_de",
+            "k8s_critical",
+            "k8s_productive"
         ]
     },
-    "posgresql-prod": {
+    "k8s_critical": {
+        "children": [
+            "k8s_master_critical",
+            "k8s_node_critical"
+        ]
+    },
+    "k8s_de": {
+        "children": [
+            "k8s_master_de",
+            "k8s_node_de"
+        ],
         "hosts": [
-            "pg.prod.local"
+            "rancher.de.example.com"
         ]
     },
-    "prod": {
+    "k8s_master": {
         "children": [
-            "databases-prod",
-            "mysql-prod",
-            "posgresql-prod"
+            "k8s_master_de",
+            "k8s_master_critical"
         ]
     },
-    "stage": {
+    "k8s_master_critical": {
+        "hosts": [
+            "k8s_master01.de.example.com"
+        ]
+    },
+    "k8s_master_de": {
+        "hosts": [
+            "k8s_master01.de.example.com"
+        ]
+    },
+    "k8s_node": {
         "children": [
-            "mysql-stage"
+            "k8s_node_de",
+            "k8s_node_critical"
+        ]
+    },
+    "k8s_node_critical": {
+        "hosts": [
+            "k8s_node01.de.example.com"
+        ]
+    },
+    "k8s_node_de": {
+        "hosts": [
+            "k8s_node01.de.example.com"
+        ]
+    },
+    "k8s_productive": {
+        "hosts": [
+            "rancher.de.example.com"
+        ]
+    },
+    "proxmox": {
+        "children": [
+            "proxmox_de",
+            "proxmox_productive",
+            "proxmox_critical"
+        ]
+    },
+    "proxmox_critical": {
+        "children": [
+            "firewall_critical"
+        ],
+        "hosts": [
+            "proxmox.de.example.com"
+        ]
+    },
+    "proxmox_de": {
+        "children": [
+            "k8s_de",
+            "tools_de",
+            "firewall_de"
+        ],
+        "hosts": [
+            "proxmox.de.example.com"
+        ]
+    },
+    "proxmox_productive": {
+        "children": [
+            "k8s_productive",
+            "tools_productive"
+        ]
+    },
+    "tools": {
+        "children": [
+            "tools_de",
+            "tools_productive"
+        ]
+    },
+    "tools_de": {
+        "hosts": [
+            "php-ipam.de.example.com",
+            "bitwarden.de.example.com"
+        ]
+    },
+    "tools_productive": {
+        "hosts": [
+            "php-ipam.de.example.com",
+            "bitwarden.de.example.com"
         ]
     }
 }
