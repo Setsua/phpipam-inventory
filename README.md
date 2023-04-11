@@ -350,6 +350,7 @@ ansible-inventory inventory/phpipam_inventory.py --list
 }
 ```
 
+![AWX output](images/awx_output.png)
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
