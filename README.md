@@ -350,6 +350,201 @@ ansible-inventory inventory/phpipam_inventory.py --list
 }
 ```
 
+```yaml
+# ansible-inventory --inventory=inventory/phpipam_inventory.py --list --yaml
+all:
+  children:
+    bhs: {}
+    critical:
+      children:
+        firewall_critical:
+          hosts:
+            pfsense.de.example.com: {}
+    de:
+      children:
+        firewall_de:
+          hosts:
+            pfsense.de.example.com: {}
+        k8s_de:
+          children:
+            k8s_master_de:
+              hosts:
+                k8s_master01.de.example.com: {}
+            k8s_node_de:
+              hosts:
+                k8s_node01.de.example.com:
+                  ansible_host: 172.19.0.3
+                  service_ntp: true
+                  status:
+                    enabled: true
+          hosts:
+            rancher.de.example.com:
+              ansible_host: 172.19.0.4
+              service: rancher
+              service_ntp: true
+              status:
+                enabled: false
+        k8s_master_de:
+          hosts:
+            k8s_master01.de.example.com:
+              ansible_host: 172.19.0.2
+              service_ntp: true
+              status:
+                enabled: true
+        k8s_node_de:
+          hosts:
+            k8s_node01.de.example.com: {}
+        proxmox_de:
+          children:
+            firewall_de:
+              hosts:
+                pfsense.de.example.com:
+                  ansible_host: 172.19.0.1
+                  cname: fw;gw
+                  service_ntp: true
+                  status:
+                    enabled: true
+            k8s_de:
+              children:
+                k8s_master_de:
+                  hosts:
+                    k8s_master01.de.example.com: {}
+                k8s_node_de:
+                  hosts:
+                    k8s_node01.de.example.com: {}
+              hosts:
+                rancher.de.example.com: {}
+            tools_de:
+              hosts:
+                bitwarden.de.example.com:
+                  ansible_host: 172.19.0.7
+                  cname: bitwarden
+                  service: bw
+                  service_ntp: true
+                  status:
+                    enabled: true
+                php-ipam.de.example.com:
+                  ansible_host: 172.19.0.6
+                  service: ipam
+                  service_ntp: true
+                  status:
+                    enabled: true
+          hosts:
+            proxmox.de.example.com:
+              ansible_host: 172.19.0.5
+              service_ntp: true
+              status:
+                enabled: true
+        tools_de:
+          hosts:
+            bitwarden.de.example.com: {}
+            php-ipam.de.example.com: {}
+    firewall:
+      children:
+        firewall_critical:
+          hosts:
+            pfsense.de.example.com: {}
+        firewall_de:
+          hosts:
+            pfsense.de.example.com: {}
+    gra: {}
+    k8s:
+      children:
+        k8s_critical:
+          children:
+            k8s_master_critical:
+              hosts:
+                k8s_master01.de.example.com: {}
+            k8s_node_critical:
+              hosts:
+                k8s_node01.de.example.com: {}
+        k8s_de:
+          children:
+            k8s_master_de:
+              hosts:
+                k8s_master01.de.example.com: {}
+            k8s_node_de:
+              hosts:
+                k8s_node01.de.example.com: {}
+          hosts:
+            rancher.de.example.com: {}
+        k8s_productive:
+          hosts:
+            rancher.de.example.com: {}
+    k8s_master:
+      children:
+        k8s_master_critical:
+          hosts:
+            k8s_master01.de.example.com: {}
+        k8s_master_de:
+          hosts:
+            k8s_master01.de.example.com: {}
+    k8s_node:
+      children:
+        k8s_node_critical:
+          hosts:
+            k8s_node01.de.example.com: {}
+        k8s_node_de:
+          hosts:
+            k8s_node01.de.example.com: {}
+    productive: {}
+    proxmox:
+      children:
+        proxmox_critical:
+          children:
+            firewall_critical:
+              hosts:
+                pfsense.de.example.com: {}
+          hosts:
+            proxmox.de.example.com: {}
+        proxmox_de:
+          children:
+            firewall_de:
+              hosts:
+                pfsense.de.example.com: {}
+            k8s_de:
+              children:
+                k8s_master_de:
+                  hosts:
+                    k8s_master01.de.example.com: {}
+                k8s_node_de:
+                  hosts:
+                    k8s_node01.de.example.com: {}
+              hosts:
+                rancher.de.example.com: {}
+            tools_de:
+              hosts:
+                bitwarden.de.example.com: {}
+                php-ipam.de.example.com: {}
+          hosts:
+            proxmox.de.example.com: {}
+        proxmox_productive:
+          children:
+            k8s_productive:
+              hosts:
+                rancher.de.example.com: {}
+            tools_productive:
+              hosts:
+                bitwarden.de.example.com: {}
+                php-ipam.de.example.com: {}
+    sbg: {}
+    sgp: {}
+    syd: {}
+    tools:
+      children:
+        tools_de:
+          hosts:
+            bitwarden.de.example.com: {}
+            php-ipam.de.example.com: {}
+        tools_productive:
+          hosts:
+            bitwarden.de.example.com: {}
+            php-ipam.de.example.com: {}
+    uk: {}
+    ungrouped: {}
+    waw: {}
+```
+
 ![AWX output](images/awx_output.png)
 
 ## Contributing
