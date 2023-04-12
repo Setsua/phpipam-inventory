@@ -19,7 +19,7 @@ phpIPAM Inventory is an inventory script for Ansible and AWX.
 
 ## Configuration
 
-**STEP 1)** Create a new creredential type in AWX:
+**STEP 1)** Create a new credential type in AWX:
 
 ![AWX credential type](images/awx_credential_type.png)
 
