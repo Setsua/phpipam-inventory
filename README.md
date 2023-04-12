@@ -54,15 +54,15 @@ env:
 
 ```
 
-**STEP 2)** Create a new creredential:
+**STEP 2)** Create a new credential:
 
 ![AWX Credential](images/awx_credential.png)
 
-**STEP 3)** Set enable varibale in AWX inventory source options:
+**STEP 3)** Set enable variable in AWX inventory source options:
 
 ![enable variable](images/awx_source_options.png)
 
-**STEP 4)** Create Custom fields in phpIPAM for IP Addresses:
+**STEP 4)** Create custom fields in phpIPAM for IP Addresses:
 
 ![Custom feilds](images/custom-fields.png)
 
@@ -74,7 +74,7 @@ env:
 
 ![maintenance tag](images/tags.png)
 
-**STEP 7)** In IP address, fill a name for custom field group and if you want this group has a parent group also fill a name in parent custom field. Add cname, service,tag and criticality as you see fit:
+**STEP 7)** In IP address, fill a name for custom field group and if you want this group has a parent group also fill a name in parent custom field. Add cname, service, tag and criticality as you see fit:
 
 ![Custom fields](images/ip-address.png)
 
