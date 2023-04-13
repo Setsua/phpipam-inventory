@@ -1,4 +1,7 @@
 # phpIPAM Inventory
+
+phpIPAM Inventory is an inventory script for Ansible and AWX.
+
 ---
 Thanks to [Poorya Sheikh](https://github.com/pooryasheikh/phpipam-inventory) for his inventory script.
 
@@ -14,8 +17,6 @@ Differences from the original:
 - IP address is added to the host vars
 - Minor code changes I can't remember
 ---
-
-phpIPAM Inventory is an inventory script for Ansible and AWX.
 
 ## Configuration
 
